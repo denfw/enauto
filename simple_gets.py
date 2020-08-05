@@ -1,5 +1,5 @@
 import requests
-import pprint
+import tabulate
 import json
 
 # stop warnings that come from accepting self signed SSL certificates
@@ -45,7 +45,25 @@ u2 = u.format(device["address"], device["port"], sd_wan_apis["get_devs"])
 # use the existing session to get list
 device_resp = sess.get(u2, verify=False)
 
-# if the response is 200 OK, print the output as a json output
-if device_resp.ok:
-        devices = device_resp.json()["data"]
-        print(json.dumps(devices, indent=2))
+# # if the response is 200 OK, print the output as a json output
+# if device_resp.ok:
+#         devices = device_resp.json()["data"]
+#         print(json.dumps(devices, indent=2))
+
+# store response as json object
+json_response = json.loads(device_resp.text)
+items = json_response['data']
+
+# create table headers for tabulate to print out
+table_headers = ["Host-Name", "Device-type", "Device ID", "System IP", "Site ID", "Version", "Device Model"]
+
+# create initial table
+table = []
+
+# iterate through json object and find specific items then append them to the table
+for i in items:
+    tr = [ i["host-name"], i["uuid"], i["system-ip"], i["site-id"], i["version"], i["device-model"]]
+    table.append(tr)
+
+# print out the appended table using tabulate
+print(tabulate.tabulate(table, table_headers, tablefmt='fancygrid'))
