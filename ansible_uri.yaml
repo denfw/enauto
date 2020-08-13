@@ -1,0 +1,38 @@
+---
+    - name: authenticate to the vManage
+      hosts: vmanage_hostname
+
+      tasks:
+        - name: auth and get the cookie after POSTing
+          uri:
+            url: "https://{{hostname}}:{{port}}/j_security_check"
+            body:
+              j_username: "ansible_user"
+              j_password: "ansible_password"
+            body_format: form-urlencoded
+            return_content: yes
+            validate_certs: no
+          register: login_data
+        
+        - name: create variable to store session cookie
+          set_fact:
+            viptela_cookie: "{{ login_data['set_cookie'] }}"
+
+        - name: get devices
+          uri:
+            url: "{{hostname}}:{{port}}/dataservice/device"
+            method: GET
+            headers:
+              Cookie: "{{ viptela_cookie }}"
+            return_content: yes
+            validate_certs: no
+          register: device_inventory
+
+        - name: print device inventory
+          debug:
+            var: device_inventory
+
+            
+
+          
+             
