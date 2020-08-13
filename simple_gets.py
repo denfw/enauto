@@ -13,7 +13,8 @@ device = {"address": "sandboxsdwan.cisco.com",
 
 # api calls 
 sd_wan_apis = {"login": "j_security_check",
-               "get_devs": "dataservice/device"}
+               "get_devs": "dataservice/device",
+               "get_templates": "dataservice/template/device"}
 
 # login credentials - specifically for auth on vManage
 login_creds = {"j_username": "devnetuser", "j_password": "Cisco123!"}
@@ -55,7 +56,7 @@ json_response = json.loads(device_resp.text)
 items = json_response['data']
 
 # create table headers for tabulate to print out
-table_headers = ["Host-Name", "Device-type", "Device ID", "System IP", "Site ID", "Version", "Device Model"]
+device_headers = ["Host-Name", "Device-type", "Device ID", "System IP", "Site ID", "Version", "Device Model"]
 
 # create initial table
 table = []
@@ -66,4 +67,20 @@ for i in items:
     table.append(tr)
 
 # print out the appended table using tabulate
-print(tabulate.tabulate(table, table_headers, tablefmt='fancygrid'))
+print(tabulate.tabulate(table, device_headers, tablefmt='fancygrid'))
+
+# format url to get list of templates
+u3 = u.format(device["address"], device["port"], sd_wan_apis["get_templates"])
+
+# use the existing session to get list
+device_templates = sess.get(u3, verify=False)
+
+template_response = json.loads(device_templates.text)
+templates = template_response['data']
+template_headers = ["Device-type", "Template Name", "Devices Attached", "Template Description", "Template ID"]
+
+for i in templates:
+    tr = [ i["deviceType"], i["templateName"], i["devicesAttached"], i["templateDescription"], i["templateId"]]
+    table.append(tr)
+
+print(tabulate.tabulate(table, template_headers, tablefmt='fancygrid'))
