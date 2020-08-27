@@ -32,7 +32,16 @@
           debug:
             var: device_inventory
 
-            
+        - name: GET REBOOT HISTORY DETAILS
+          uri:  
+            url: "{{hostname}}:{{port}}/dataservice/device/reboothistory/details"  
+            method: GET  
+            headers:  
+              Cookie: "{{ vmanage_cookie }}"  
+            return_content: yes  
+            validate_certs: 
+          register: reboot_history
 
-          
-             
+        - name: print reboot history
+          debug:
+            var: reboot_history
