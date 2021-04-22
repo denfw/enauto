@@ -11,4 +11,4 @@ response = requests.get(
     URL + "/organizations", headers=HEADERS 
 )
 
-print(json.dumps(response.json(), indent=4))3
+print(json.dumps(response.json(), indent=4))
